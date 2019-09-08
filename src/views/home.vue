@@ -1,6 +1,7 @@
 <template>
-    <div class='events' v-if="eventDays.length">
-        <Day v-for="day in eventDays" :dateTime="day.date" :eventList="day.events" :key="day.id" />
+    <div class='events' v-if="getNumEvents()">
+        <Day v-for="key in Object.keys(eventDays)" :dateTime="eventDays[key].date" :eventList="eventDays[key].events"
+             :key="eventDays[key].id" />
     </div>
     <div v-else class='empty'>
         <p> {{message}} </p>
@@ -24,7 +25,7 @@ export default {
     mounted: function(){
         this.message = 'Loading Events...';
         this.$store.dispatch( 'getList' ).then( res => {
-            if( this.$store.state.events.length === 0 ) {
+            if( !this.getNumEvents() ) {
               this.message = 'No Events';
             }
         }).catch( err => {
@@ -41,6 +42,11 @@ export default {
     computed: {
         eventDays() {
             return this.$store.state.events
+        },
+    },
+    methods: {
+        getNumEvents() {
+            return this.$store.getters.getNumEvents;
         }
     }
 }

@@ -2,8 +2,8 @@
     <div class='event'>
         <dl>
             <dt class='event__title'>Name:</dt><dd>{{ thisEvent.name || 'n/a' }}</dd>
-            <dt class='event__date'>Date:</dt><dd>{{ jsDate.toLocaleDateString() || 'n/a' }}</dd>
-            <dt class='event__date--time'>Time:</dt><dd>{{ jsDate.toLocaleTimeString() || 'n/a' }}</dd>
+            <dt class='event__date'>Date:</dt><dd>{{ jsDate.format('L') || 'n/a' }}</dd>
+            <dt class='event__date--time'>Time:</dt><dd>{{ jsDate.format('hh:mm a') || 'n/a' }}</dd>
             <dt class='event__date--duration'>Duration:</dt><dd>{{ thisEvent.duration || 'n/a' }} Minutes</dd>
         </dl>
         <p v-if="thisEvent.brief">{{ thisEvent.brief }}</p>
@@ -15,6 +15,9 @@
 </template>
 
 <script>
+
+import moment from 'moment';
+
 export default {
     name: 'Event',
     props: {
@@ -22,13 +25,13 @@ export default {
     },
     data: () => {
         return {
-            jsDate: new Date()
+            jsDate: moment()
         }
     },
     methods: {
         deleteEvent: function( evt ) {
             evt.preventDefault();
-            this.$store.dispatch( 'deleteEvent', this.thisEvent.id )
+            this.$store.dispatch( 'deleteEvent', {eventId: this.thisEvent.id, day: this.thisEvent.dateTime} )
             .then( res => {
               this.$store.dispatch( 'getList' );
             }).catch( ( err, body ) => {
@@ -41,7 +44,7 @@ export default {
         }
     },
     created: function() {
-        this.jsDate = new Date( Date.parse( this.thisEvent.dateTime ) )
+        this.jsDate = moment(this.thisEvent.dateTime);
     }
 }
 </script>

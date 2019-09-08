@@ -2,16 +2,19 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import uuidv1 from 'uuid/v1';
+import * as moment from 'moment';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 Vue.use(Vuex)
 
 import { API_ENDPOINT } from './config';
-import testData from '@/data/test-data';
 
 export default new Vuex.Store({
     state: {
         // TODO don't use testData
-        events: testData,//{},
+        events: {},
         basicToken: false
     },
     mutations: {
@@ -22,19 +25,36 @@ export default new Vuex.Store({
             state.events = list;
         }
     },
+    getters: {
+        getNumEvents: (state) => {
+            return Object.keys(state.events).reduce((sum, key) => {
+                sum += Object.keys(state.events[key].events).length;
+                return sum;
+            }, 0);
+        }
+    },
     actions: {
-        deleteEvent: function( { commit, state }, eventId ) {
+        deleteEvent: function( { commit, state }, { eventId, day} ) {
           return axios({
             method: 'DELETE',
             url: `${API_ENDPOINT}/delete/${eventId}`,
-            headers: { authorization: state.basicToken }
+            headers: { authorization: state.basicToken },
+            data: { dateTime: moment(day).toISOString() }
           });
         },
-        modifyEvent: function( { commit, state }, calendarEvent ) {
+        modifyEvent: function( { commit, state }, payload ) {
+          const changes = {
+              name: payload.name,
+              duration: payload.duration,
+              brief: payload.brief,
+              dateTime: payload.dateTime,
+              oldTime: (payload.dateTime !== payload.oldTime) ? payload.oldTime : null
+          };
+
           return axios({
-            method: 'POST',
-            url: `${API_ENDPOINT}/update`,
-            data: calendarEvent,
+            method: 'PUT',
+            url: `${API_ENDPOINT}/update/${payload.id}`,
+            data: changes,
             headers: { authorization: state.basicToken }
           });
         },
@@ -48,11 +68,6 @@ export default new Vuex.Store({
           });
         },
         checkBasicToken: function( { commit, state }, token ) {
-
-          // TODO remove return, actually implement basic authentication
-            return;
-          // TODO end remove return
-
           return axios({
             method: 'GET',
             url: `${API_ENDPOINT}/check`,
@@ -60,17 +75,15 @@ export default new Vuex.Store({
           });
         },
         getList: function( { commit, state } ) {
-
-          // TODO remove return, actually implement endpoint
-            return;
-          // TODO end remove return
-
           axios({
             method: 'GET',
             url: `${API_ENDPOINT}/list`,
-            headers: { authorization: state.basicToken }
+            headers: {
+                authorization: state.basicToken,
+                'X-API-KEY': process.env.API_KEY
+            }
           }).then( res => {
-            commit( 'updateList', res.data );
+            commit( 'updateList', res.data.events );
           });
         }
     }

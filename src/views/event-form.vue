@@ -49,12 +49,15 @@ export default {
             working: false
         }
     },
+    created: function() {
+        this.thisEvent.oldTime = this.thisEvent.dateTime;
+    },
     methods: {
         createEvent: function( evt ) {
             this.dispatchChange( evt, 'createEvent' );
         },
         modifyEvent: function( evt ) {
-            this.dispatchChange( evt, 'modifyEvent' );
+            this.dispatchChange( evt, 'modifyEvent', this.thisEvent);
         },
         dispatchChange: function( evt, type = 'createEvent' ) {
             evt.preventDefault();
@@ -62,6 +65,18 @@ export default {
             this.$store.dispatch( type, this.thisEvent )
             .then( resp => {
                 this.working = false;
+                if (resp && resp.data && resp.data.reason) {
+                    this.$toasted.show(
+                        resp.data.reason,
+                        {
+                            position: 'top-left',
+                            theme: 'bubble',
+                            type: 'error'
+                        }
+                    ).goAway(1500);
+                    return;
+                }
+
                 this.$router.push( '/' );
             }).catch( err => {
                 this.working = false;

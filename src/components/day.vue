@@ -1,8 +1,9 @@
 <template>
     <div class='calendar__day'>
-        <div class='title'> {{ dateObj.toDateString() }} </div>
+        <div class='title'> {{ dateObj.format('ddd MMM DD YYYY') }} </div>
         <div class='events'>
-            <Event v-for="eventItem in eventList" :thisEvent="eventItem" :key="eventItem.id" />
+            <Event v-for="eventItem in eventList" :thisEvent="eventItem"
+                   :day="dateTime" :key="eventItem.id" />
         </div>
     </div>
 </template>
@@ -10,19 +11,20 @@
 <script>
 
 import Event from '@/components/event.vue'
+import moment from 'moment';
 
 export default {
     name: 'Day',
     props: {
         dateTime: String,
-        eventList: Array
+        eventList: Object
     },
     components: {
         Event
     },
     computed: {
         dateObj() {
-            return new Date( Date.parse( this.dateTime || 0 ) )
+            return moment(this.dateTime).utc();
         }
     }
 }
