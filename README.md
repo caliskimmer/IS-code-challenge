@@ -6,7 +6,7 @@
 ```
 npm install
 ```
-* You must create a .env file! This will not work without one!
+* You must create a .env file and place a copy under /src and another under /src/api! This will not work without these!
 ```
 API_KEY=<Your API key here>
 API_URL=https://crud-api.azurewebsites.net/api
