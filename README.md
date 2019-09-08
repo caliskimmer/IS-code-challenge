@@ -12,10 +12,15 @@ API_KEY=<Your API key here>
 API_URL=https://crud-api.azurewebsites.net/api
 ```
 ### Getting Started
+For purposes of this assignment, both backend and front-end are separate and use the dev
+server. I have not optimized anything nor have prepared the code for deployment to a host
 ```
-// serve for development
+// serve front-end for development
 npm run serve
+```
 
-// Compiles and minifies for production
-npm run build
+```
+// serve back-end for development
+cd $PROJECT_DIRECTORY/src/api
+node server.js
 ```
